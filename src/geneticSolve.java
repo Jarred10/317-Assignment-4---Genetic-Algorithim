@@ -3,11 +3,18 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 
 public class geneticSolve {
 
 	public static void main(String[] args) throws FileNotFoundException {
+
+		final int POPULATION_SIZE;
+		final int MAX_ORGANISMS;
+		int organisms_tested = 0;
+
+		Random rand = new Random();
 
 		Scanner s = new Scanner(new File(args[0]));
 		HashMap<Integer, Box> boxes = new HashMap<Integer, Box>();
@@ -19,43 +26,68 @@ public class geneticSolve {
 			boxes.put(b.boxId, b);
 		}
 
-		ArrayList<orientation> oris = new ArrayList<orientation>();
+		POPULATION_SIZE = boxes.size() * 4;
+		MAX_ORGANISMS = 3 * ((int)Math.pow(boxes.size(), 2));
 
-		for(int i : boxes.keySet()){
-			Box b = boxes.get(i);
-			oris.addAll(b.orientations);
+		ArrayList<organism> population = new ArrayList<organism>();
+
+		for(int i = 0; i < POPULATION_SIZE; i++){
+			organism org = new organism();
+			for(int j : boxes.keySet()){ //for every box
+				org.orientations.add(boxes.get(j).orientations.get(rand.nextInt(3)));
+			}
+			population.add(org);
 		}
 
-		Object[] result = findBestStack(oris);
+		//loop
+		
+		organism currentBest = null;
 
-		System.out.println(((ArrayList<orientation>) result[0]).toString());
+		while(organisms_tested < MAX_ORGANISMS){
+
+			int totalFitness = 0;
+
+			for(organism o : population){
+				o.findBestStack();
+				totalFitness += o.r.bestHeight;
+				organisms_tested++;
+			}
+			if(currentBest == null || currentBest.r.bestHeight < population.get(0).r.bestHeight){
+				currentBest = population.get(0);
+			}
+
+
+			ArrayList<organism> survivors = new ArrayList<organism>();
+			ArrayList<organism> elites = new ArrayList<organism>();
+
+			Collections.sort(population);
+			//put top 1% or 3, which is higher into elites, dont get culled
+			for(int i = 0; i < Math.max(POPULATION_SIZE * 0.01, 3); i++){
+				//add best
+				elites.add(population.get(i));
+				totalFitness -=  population.get(i).r.bestHeight;
+				population.remove(i);
+			}
+
+			for(organism o : population){
+				if(rand.nextDouble() < o.r.bestHeight / totalFitness) survivors.add(o);
+			}
+
+			survivors.addAll(elites);
+
+			population = new ArrayList<>(elites);
+
+			for(int i = elites.size(); i < POPULATION_SIZE; i++){
+				population.add(survivors.get(rand.nextInt(survivors.size())).breed(survivors.get(rand.nextInt(survivors.size()))));
+			}
+
+		}
+
+		System.out.println(organisms_tested);
+		System.out.println(currentBest.r.bestHeight);
 
 		s.close();
 
-	}
-
-	public static Object[] findBestStack(ArrayList<orientation> oris){
-		Collections.sort(oris);
-		ArrayList<orientation> bestStack = null;
-		int bestHeight = 0;
-		for(int i = 0; i < oris.size(); i++){ //for all orientations in set passed in
-			ArrayList<orientation> stack = new ArrayList<orientation>();
-			stack.add(oris.get(i)); //add the ith box, sorted so first is biggest
-			int height = oris.get(i).height;
-			for(int j = i + 1; j < oris.size(); j++){ //for the all rest orientations
-				orientation nextBox = oris.get(j);
-				//if the next box fits on the last added box, add it
-				if(nextBox.fitsOn(stack.get(stack.size() - 1))){
-					stack.add(nextBox);
-					height+= nextBox.height;
-				}
-			}
-			if(height > bestHeight){
-				bestHeight = height;
-				bestStack = stack;
-			}
-		}
-		return new Object[]{bestStack, bestHeight};
 	}
 
 }

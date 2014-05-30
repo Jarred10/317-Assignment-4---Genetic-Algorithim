@@ -7,10 +7,11 @@ public class Box {
 	ArrayList<orientation> orientations = new ArrayList<orientation>();
 
 	public Box(int height, int width, int depth){
-		this.boxId= ++id;
-		orientations.add((width>depth) ? new orientation(height, width, depth) : new orientation(height, depth, width));
-		orientations.add((height>depth)? new orientation(width, height, depth) : new orientation(width, depth, height));
-		orientations.add((height>width)? new orientation(depth, height, width) : new orientation(depth, width, height));
+		this.boxId= id;
+		id++;
+		orientations.add((width>depth) ? new orientation(boxId, height, width, depth) : new orientation(boxId, height, depth, width));
+		orientations.add((height>depth)? new orientation(boxId, width, height, depth) : new orientation(boxId, width, depth, height));
+		orientations.add((height>width)? new orientation(boxId, depth, height, width) : new orientation(boxId, depth, width, height));
 		Collections.sort(orientations);
 	}
 	
