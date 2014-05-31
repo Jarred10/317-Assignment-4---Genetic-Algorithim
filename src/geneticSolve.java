@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -17,24 +16,23 @@ public class geneticSolve {
 		Random rand = new Random();
 
 		Scanner s = new Scanner(new File(args[0]));
-		HashMap<Integer, Box> boxes = new HashMap<Integer, Box>();
-		String line[];
+		ArrayList<Box> boxes = new ArrayList<Box>(); //list of all boxes read in
 
 		while(s.hasNextLine()){
-			line = s.nextLine().split(" ");
+			String[] line = s.nextLine().split(" ");
 			Box b = new Box(Integer.valueOf(line[0]), Integer.valueOf(line[1]), Integer.valueOf(line[2]));
-			boxes.put(b.boxId, b);
+			boxes.add(b);
 		}
-
-		POPULATION_SIZE = boxes.size() * 4;
-		MAX_ORGANISMS = 3 * ((int)Math.pow(boxes.size(), 2));
+		
+		MAX_ORGANISMS = (int) Math.pow((3 * boxes.size()), 2); //max evaluations = (3n)*(3n)
+		POPULATION_SIZE = boxes.size() * 3; //initial population is 3 times as much as boxes read in 
 
 		ArrayList<organism> population = new ArrayList<organism>();
 
 		for(int i = 0; i < POPULATION_SIZE; i++){
 			organism org = new organism();
-			for(int j : boxes.keySet()){ //for every box
-				org.orientations.add(boxes.get(j).orientations.get(rand.nextInt(3)));
+			for(Box b : boxes){ //for every box
+				org.orientations.add(b.orientations.get(rand.nextInt(3)));
 			}
 			population.add(org);
 		}
