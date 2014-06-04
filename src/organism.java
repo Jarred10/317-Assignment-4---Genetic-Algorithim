@@ -46,7 +46,8 @@ public class organism implements Comparable<organism>{
 		for(orientation o : orientations){
 			child.orientations.add(new orientation(o.id, o.height, o.width, o.depth));
 		}
-		for(int i = 0; i < rand.nextInt(orientations.size()); i++){
+		int iterations = rand.nextInt(orientations.size());
+		for(int i = 0; i < iterations; i++){
 			int index = rand.nextInt(child.orientations.size());
 			child.orientations.set(index, partner.findOrientationById(child.orientations.get(index).id));
 		}

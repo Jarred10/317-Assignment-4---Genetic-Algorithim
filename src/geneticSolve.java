@@ -20,8 +20,7 @@ public class geneticSolve {
 
 		while(s.hasNextLine()){
 			String[] line = s.nextLine().split(" ");
-			Box b = new Box(Integer.valueOf(line[0]), Integer.valueOf(line[1]), Integer.valueOf(line[2]));
-			boxes.add(b);
+			boxes.add(new Box(Integer.valueOf(line[0]), Integer.valueOf(line[1]), Integer.valueOf(line[2])));
 		}
 		
 		MAX_ORGANISMS = (int) Math.pow((3 * boxes.size()), 2); //max evaluations = (3n)*(3n)
@@ -35,7 +34,10 @@ public class geneticSolve {
 				org.orientations.add(b.orientations.get(rand.nextInt(3)));
 			}
 			population.add(org);
+			org.findBestStack();
 		}
+		
+		Collections.sort(population);
 
 		//loop
 		
@@ -50,6 +52,9 @@ public class geneticSolve {
 				totalFitness += o.r.bestHeight;
 				organisms_tested++;
 			}
+
+			Collections.sort(population);
+			
 			if(currentBest == null || currentBest.r.bestHeight < population.get(0).r.bestHeight){
 				currentBest = population.get(0);
 			}
@@ -58,9 +63,8 @@ public class geneticSolve {
 			ArrayList<organism> survivors = new ArrayList<organism>();
 			ArrayList<organism> elites = new ArrayList<organism>();
 
-			Collections.sort(population);
 			//put top 1% or 3, which is higher into elites, dont get culled
-			for(int i = 0; i < Math.max((double)POPULATION_SIZE * 0.01, 3); i++){
+			for(int i = 0; i < Math.max((double)POPULATION_SIZE * 0.25, 2); i++){
 				//add best
 				elites.add(population.get(i));
 				totalFitness -=  population.get(i).r.bestHeight;
@@ -68,7 +72,7 @@ public class geneticSolve {
 			}
 
 			for(organism o : population){
-				if(rand.nextDouble() < o.r.bestHeight / totalFitness) survivors.add(o);
+				if(rand.nextDouble() < ((double)o.r.bestHeight / totalFitness)) survivors.add(o);
 			}
 
 			survivors.addAll(elites);
