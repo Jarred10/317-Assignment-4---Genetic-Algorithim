@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -26,18 +27,16 @@ public class geneticSolve {
 		MAX_ORGANISMS = (int) Math.pow((3 * boxes.size()), 2); //max evaluations = (3n)*(3n)
 		POPULATION_SIZE = boxes.size() * 3; //initial population is 3 times as much as boxes read in 
 
-		ArrayList<organism> population = new ArrayList<organism>();
+		PriorityQueue<organism> population = new PriorityQueue<organism>();
 
 		for(int i = 0; i < POPULATION_SIZE; i++){
 			organism org = new organism();
 			for(Box b : boxes){ //for every box
 				org.orientations.add(b.orientations.get(rand.nextInt(3)));
 			}
-			population.add(org);
 			org.findBestStack();
+			population.add(org);
 		}
-		
-		Collections.sort(population);
 
 		//loop
 		
@@ -56,11 +55,9 @@ public class geneticSolve {
 					o.mutate(boxes);
 				}
 			}
-
-			Collections.sort(population);
 			
-			if(currentBest == null || currentBest.r.bestHeight < population.get(0).r.bestHeight){
-				currentBest = population.get(0);
+			if(currentBest == null || currentBest.r.bestHeight < population.peek().r.bestHeight){
+				currentBest = population.peek();
 			}
 
 
@@ -70,8 +67,10 @@ public class geneticSolve {
 			//put top 1% or 3, which is higher into elites, dont get culled
 			for(int i = 0; i < Math.max((double)POPULATION_SIZE * 0.25, 2); i++){
 				//add best
-				elites.add(population.get(i));
-				totalFitness -=  population.get(i).r.bestHeight;
+				organism elite = population.remove();
+				
+				elites.add(elite);
+				totalFitness -=  elite.r.bestHeight;
 				population.remove(i);
 			}
 
@@ -81,10 +80,12 @@ public class geneticSolve {
 
 			survivors.addAll(elites);
 
-			population = new ArrayList<>(elites);
+			population = new PriorityQueue<organism>(elites);
 
 			for(int i = elites.size(); i < POPULATION_SIZE; i++){
-				population.add(survivors.get(rand.nextInt(survivors.size())).breed(survivors.get(rand.nextInt(survivors.size()))));
+				organism o = survivors.get(rand.nextInt(survivors.size())).breed(survivors.get(rand.nextInt(survivors.size())));
+				o.findBestStack();
+				population.add(o);
 			}
 
 		}
