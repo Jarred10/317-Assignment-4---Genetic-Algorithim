@@ -60,7 +60,7 @@ public class geneticSolve {
 
 			Collections.sort(population);
 			//put top 1% or 3, which is higher into elites, dont get culled
-			for(int i = 0; i < Math.max(POPULATION_SIZE * 0.01, 3); i++){
+			for(int i = 0; i < Math.max((double)POPULATION_SIZE * 0.01, 3); i++){
 				//add best
 				elites.add(population.get(i));
 				totalFitness -=  population.get(i).r.bestHeight;
@@ -81,8 +81,8 @@ public class geneticSolve {
 
 		}
 
-		System.out.println(organisms_tested);
-		System.out.println(currentBest.r.bestHeight);
+		System.out.println("Best stack for " + boxes.size());
+		System.out.println(currentBest.r.toString());
 
 		s.close();
 
