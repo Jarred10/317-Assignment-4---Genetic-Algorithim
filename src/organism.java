@@ -1,46 +1,50 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 public class organism implements Comparable<organism>{
-	
+
 	ArrayList<orientation> orientations = new ArrayList<orientation>();
+	HashMap<Integer, orientation> ids = new HashMap<Integer, orientation>();
 	result r;
 	static Random rand = new Random();
 
 	public organism(){}
-	
+
 	public orientation findOrientationById(int id){
 		for(orientation o : orientations){
 			if (o.id == id) return o;
 		}
 		return null;
 	}
-	
+
 	public void findBestStack(){
 		Collections.sort(orientations);
-		ArrayList<orientation> bestStack = null;
-		int bestHeight = 0;
+		ArrayList<orientation> stack = new ArrayList<orientation>();
+		int height = 0;
 		for(int i = 0; i < orientations.size(); i++){ //for all orientations in set passed in
-			ArrayList<orientation> stack = new ArrayList<orientation>();
-			stack.add(orientations.get(i)); //add the ith box, sorted so first is biggest
-			int height = orientations.get(i).height;
-			for(int j = i + 1; j < orientations.size(); j++){ //for the all rest orientations
-				orientation nextBox = orientations.get(j);
-				//if the next box fits on the last added box, add it
-				if(nextBox.fitsOn(stack.get(stack.size() - 1))){
-					stack.add(nextBox);
-					height+= nextBox.height;
-				}
+			orientation o = orientations.get(i);
+
+			
+			if(stack.size() == 0) {
+				height += o.height;
+				stack.add(o); //add the ith box, sorted so first is biggest
+				
 			}
-			if(height > bestHeight){
-				bestHeight = height;
-				bestStack = stack;
+			else{
+				//if the next box fits on the last added box, add it
+				if(o.fitsOn(stack.get(stack.size() - 1))){
+					stack.add(o);
+					height += o.height;
+
+				}
+
 			}
 		}
-		r = new result(bestStack, bestHeight);
+		r = new result(stack, height);
 	}
-	
+
 	public organism breed(organism partner){
 		organism child = new organism();
 		for(orientation o : orientations){
@@ -58,7 +62,7 @@ public class organism implements Comparable<organism>{
 	public int compareTo(organism o) {
 		return o.r.bestHeight - r.bestHeight;
 	}
-	
+
 	@Override
 	public String toString(){
 		return this.hashCode() + ": " + r.bestHeight;

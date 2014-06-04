@@ -41,8 +41,9 @@ public class geneticSolve {
 		//loop
 		
 		organism currentBest = null;
+		int timesSame = 0;
 
-		while(organisms_tested < MAX_ORGANISMS){
+		while(organisms_tested < MAX_ORGANISMS && timesSame < boxes.size() * 2){
 
 			int totalFitness = 0;
 
@@ -57,15 +58,22 @@ public class geneticSolve {
 			}
 			
 			if(currentBest == null || currentBest.r.bestHeight < population.peek().r.bestHeight){
+				if(currentBest != null) System.out.println(currentBest.r.bestHeight + ", " + population.peek().r.bestHeight);
 				currentBest = population.peek();
+				timesSame = 0;
 			}
+			else if(currentBest.r.bestHeight >= population.peek().r.bestHeight){
 
+				timesSame++;
+				System.out.println(timesSame);
+			}
+			
 
 			ArrayList<organism> survivors = new ArrayList<organism>();
 			ArrayList<organism> elites = new ArrayList<organism>();
 
 			//put top 1% or 3, which is higher into elites, dont get culled
-			for(int i = 0; i < Math.max((double)POPULATION_SIZE * 0.25, 2); i++){
+			for(int i = 0; i < Math.max((double)POPULATION_SIZE * 0.15, 2); i++){
 				//add best
 				organism elite = population.remove();
 				
@@ -92,6 +100,7 @@ public class geneticSolve {
 
 		System.out.println("Best stack for " + boxes.size());
 		System.out.println(currentBest.r.toString());
+		System.out.println(organisms_tested);
 
 		s.close();
 
