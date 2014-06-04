@@ -9,6 +9,7 @@ public class Box {
 	public Box(int height, int width, int depth){
 		this.boxId= id;
 		id++;
+		// Blank orientation
 		orientations.add(new orientation(boxId, 0, 0, 0));
 		orientations.add((width>depth) ? new orientation(boxId, height, width, depth) : new orientation(boxId, height, depth, width));
 		orientations.add((height>depth)? new orientation(boxId, width, height, depth) : new orientation(boxId, width, depth, height));

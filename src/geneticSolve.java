@@ -41,9 +41,12 @@ public class geneticSolve {
 		//loop
 		
 		organism currentBest = null;
-		int timesSame = 0;
+		
+		//timers that break code when 15s pass without an improvement in fitness
+		long startTime = System.currentTimeMillis();
+		long currentTime = 0;
 
-		while(organisms_tested < MAX_ORGANISMS && timesSame < boxes.size() * 2){
+		while(organisms_tested < MAX_ORGANISMS && startTime + 15000 > currentTime){
 
 			int totalFitness = 0;
 
@@ -51,21 +54,20 @@ public class geneticSolve {
 				o.findBestStack();
 				totalFitness += o.r.bestHeight;
 				organisms_tested++;
+				//mutation
 				if(rand.nextDouble() < 0.0001){
 					if(currentBest == null || currentBest.r.bestHeight < o.r.bestHeight) currentBest = o;
 					o.mutate(boxes);
 				}
 			}
 			
-			if(currentBest == null || currentBest.r.bestHeight < population.peek().r.bestHeight){
-				if(currentBest != null) System.out.println(currentBest.r.bestHeight + ", " + population.peek().r.bestHeight);
-				currentBest = population.peek();
-				timesSame = 0;
+			organism fittest = population.peek();
+			if(currentBest == null || currentBest.r.bestHeight < fittest.r.bestHeight){
+				currentBest = fittest;
+				startTime = System.currentTimeMillis();
 			}
 			else if(currentBest.r.bestHeight >= population.peek().r.bestHeight){
-
-				timesSame++;
-				System.out.println(timesSame);
+				currentTime = System.currentTimeMillis();
 			}
 			
 
@@ -76,7 +78,6 @@ public class geneticSolve {
 			for(int i = 0; i < Math.max((double)POPULATION_SIZE * 0.15, 2); i++){
 				//add best
 				organism elite = population.remove();
-				
 				elites.add(elite);
 				totalFitness -=  elite.r.bestHeight;
 				population.remove(i);
@@ -100,7 +101,6 @@ public class geneticSolve {
 
 		System.out.println("Best stack for " + boxes.size());
 		System.out.println(currentBest.r.toString());
-		System.out.println(organisms_tested);
 
 		s.close();
 
