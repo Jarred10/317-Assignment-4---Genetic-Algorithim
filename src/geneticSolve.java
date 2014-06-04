@@ -51,6 +51,10 @@ public class geneticSolve {
 				o.findBestStack();
 				totalFitness += o.r.bestHeight;
 				organisms_tested++;
+				if(rand.nextDouble() < 0.0001){
+					if(currentBest == null || currentBest.r.bestHeight < o.r.bestHeight) currentBest = o;
+					o.mutate(boxes);
+				}
 			}
 
 			Collections.sort(population);

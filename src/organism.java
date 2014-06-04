@@ -64,4 +64,15 @@ public class organism implements Comparable<organism>{
 		return this.hashCode() + ": " + r.bestHeight;
 	}
 
+	public void mutate(ArrayList<Box> boxes) {
+		int index = rand.nextInt(orientations.size());
+		orientation toMutate = orientations.get(index);
+		for(int i = 0; i < boxes.size(); i++){
+			if(boxes.get(i).boxId == toMutate.id){
+				toMutate = boxes.get(i).orientations.get(boxes.indexOf(toMutate) + 1 % 3);
+				return;
+			}
+		}
+	}
+
 }
